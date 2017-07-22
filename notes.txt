@@ -1,0 +1,13 @@
+
+
+Anaconda environment:
+
+> source activate carnd-term1
+
+Starting Jupyter notebook:
+> jupyter notebook filename.ipynb 
+
+
+for starting with figures and stuff.
+> ipython --pylab  
+
