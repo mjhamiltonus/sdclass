@@ -208,7 +208,11 @@ os.listdir("test_images/")
 # In[5]:
 
 procImages = os.listdir("test_images/")
-for imName in procImages:
+#for imName in procImages:
+for ii in range(len(procImages)):
+    if ii != 1:
+        continue
+    imName = procImages[ii]
     image = mpimg.imread('test_images/' + imName)
     plt.imshow(image)
     
@@ -232,8 +236,8 @@ for imName in procImages:
     imshape = image.shape
     # vertices = np.array([[(10,imshape[0]),(0,0), (imshape[1], 0), (imshape[1],imshape[0])]], dtype=np.int32)
     vertices = np.array([[(imshape[1]*0.05,imshape[0]),
-                          (imshape[1]*0.46,imshape[0]*0.55),
-                          (imshape[1]*0.53,imshape[0]*0.55), 
+                          (imshape[1]*0.46,imshape[0]*0.58),
+                          (imshape[1]*0.53,imshape[0]*0.58), 
                           (imshape[1],imshape[0])]], 
                         dtype=np.int32)
     cv2.fillPoly(mask, vertices, ignore_mask_color)
@@ -273,7 +277,7 @@ for imName in procImages:
     # save image created to a buffer
     myImage = fig2data( fig )
     
-    input("press enter to continue")
+#    input("press enter to continue")
 
     # write image to file
     cv2.imwrite('test_images_output/' + imName,  lines_edges);
