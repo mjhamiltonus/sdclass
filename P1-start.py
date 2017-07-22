@@ -214,7 +214,9 @@ for ii in range(len(procImages)):
         continue
     imName = procImages[ii]
     image = mpimg.imread('test_images/' + imName)
+    fig = plt.figure()
     plt.imshow(image)
+    plt.show()
     
     # Process the image here
     grayIm = grayscale(image)
@@ -248,7 +250,7 @@ for ii in range(len(procImages)):
     rho = 1 # distance resolution in pixels of the Hough grid
     theta = np.pi/180 # angular resolution in radians of the Hough grid
     threshold = 3     # minimum number of votes (intersections in Hough grid cell)
-    min_line_length = 40 #minimum number of pixels making up a line
+    min_line_length = 30 #minimum number of pixels making up a line
     max_line_gap    = 10 # maximum gap in pixels between connectable line segments
     line_image = np.copy(image)*0 # creating a blank to draw lines on
 
