@@ -48,7 +48,7 @@ image = mpimg.imread('test_images/solidWhiteRight.jpg')
 
 #printing out some stats and plotting
 print('This image is:', type(image), 'with dimensions:', image.shape)
-plt.imshow(image)  # if you wanted to show a single color channel image called 'gray', for example, call as plt.imshow(gray, cmap='gray')
+# plt.imshow(image)  # if you wanted to show a single color channel image called 'gray', for example, call as plt.imshow(gray, cmap='gray')
 
 
 # ## Ideas for Lane Detection Pipeline
@@ -210,13 +210,13 @@ os.listdir("test_images/")
 procImages = os.listdir("test_images/")
 #for imName in procImages:
 for ii in range(len(procImages)):
-    if ii != 1:
-        continue
+    # if ii != 1:
+    #     continue
     imName = procImages[ii]
     image = mpimg.imread('test_images/' + imName)
-    fig = plt.figure()
-    plt.imshow(image)
-    plt.show()
+    # fig = plt.figure()
+    # plt.imshow(image)
+    # plt.show()
     
     # Process the image here
     grayIm = grayscale(image)
@@ -238,8 +238,8 @@ for ii in range(len(procImages)):
     imshape = image.shape
     # vertices = np.array([[(10,imshape[0]),(0,0), (imshape[1], 0), (imshape[1],imshape[0])]], dtype=np.int32)
     vertices = np.array([[(imshape[1]*0.05,imshape[0]),
-                          (imshape[1]*0.46,imshape[0]*0.58),
-                          (imshape[1]*0.53,imshape[0]*0.58), 
+                          (imshape[1]*0.46,imshape[0]*0.60),
+                          (imshape[1]*0.53,imshape[0]*0.60), 
                           (imshape[1],imshape[0])]], 
                         dtype=np.int32)
     cv2.fillPoly(mask, vertices, ignore_mask_color)
