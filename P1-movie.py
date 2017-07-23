@@ -289,8 +289,8 @@ def process_image(image):
     imshape = image.shape
     # vertices = np.array([[(10,imshape[0]),(0,0), (imshape[1], 0), (imshape[1],imshape[0])]], dtype=np.int32)
     vertices = np.array([[(imshape[1]*0.05,imshape[0]),
-                          (imshape[1]*0.46,imshape[0]*0.55),
-                          (imshape[1]*0.53,imshape[0]*0.55), 
+                          (imshape[1]*0.46,imshape[0]*0.60),
+                          (imshape[1]*0.53,imshape[0]*0.60), 
                           (imshape[1],imshape[0])]], 
                         dtype=np.int32)
     cv2.fillPoly(mask, vertices, ignore_mask_color)
@@ -301,8 +301,8 @@ def process_image(image):
     rho = 1 # distance resolution in pixels of the Hough grid
     theta = np.pi/180 # angular resolution in radians of the Hough grid
     threshold = 3     # minimum number of votes (intersections in Hough grid cell)
-    min_line_length = 40 #minimum number of pixels making up a line
-    max_line_gap    = 10 # maximum gap in pixels between connectable line segments
+    min_line_length = 25 #minimum number of pixels making up a line
+    max_line_gap    = 15 # maximum gap in pixels between connectable line segments
     line_image = np.copy(image)*0 # creating a blank to draw lines on
 
     # Run Hough on edge detected image
@@ -321,15 +321,17 @@ def process_image(image):
     # Draw the lines on the edge image
     lines_edges = cv2.addWeighted(color_edges, 0.8, line_image, 1, 0) 
     lines_image = cv2.addWeighted(image, 0.8, line_image, 1, 0) 
-    fig = plt.figure()
-    plt.imshow(lines_image)
-    # overplot the selected region
-    plt.plot( vertices[0,:,0], vertices[0,:,1], 'b--', lw=4)
-
-    # save image created to a buffer
-    result = fig2data( fig )
-
-    plt.close(fig)
+    result = lines_image
+    
+    ## trying to get the data out after plotting, but, not required, and,
+    ## keep getting errors.
+    # fig = plt.figure()
+    # plt.imshow(lines_image)
+    # # overplot the selected region
+    # plt.plot( vertices[0,:,0], vertices[0,:,1], 'b--', lw=4)
+    # # save image created to a buffer
+    # result = fig2data( fig )
+    # plt.close(fig)
     
     return result
 
