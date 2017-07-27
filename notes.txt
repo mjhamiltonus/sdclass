@@ -4,6 +4,9 @@ Anaconda environment:
 
 > source activate carnd-term1
 
+list environments:
+> conda info --envs
+
 Starting Jupyter notebook:
 > jupyter notebook filename.ipynb 
 
