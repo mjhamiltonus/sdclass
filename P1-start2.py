@@ -303,10 +303,6 @@ for ii in range(len(procImages)):
     from sklearn.cluster import KMeans
     kmeans = KMeans(n_clusters=2).fit(goodSlopes)
 
-    ## TODO: find the max and min vertical points. use as the ends.
-    ## May need to fill in down to the min of the plot on dashed lines with slope
-    # Iterate over the output "lines" and draw lines on a blank image
-
     goodLineImage = np.copy(image)*0 # blank for right/left image
     iiGood = 0
     for line in goodLines:
@@ -320,6 +316,15 @@ for ii in range(len(procImages)):
             iiGood = iiGood + 1
             plt.show()
             # input("press enter to continue")
+
+    # Least Squares fit the two lines
+    # pull the points based on class
+    
+    # interpolate them.
+    # use the function created to get from ymax(bottom) to ymin(top)
+    
+
+    
             
     # Create a "color" binary image to combine with line image
     color_edges = np.dstack((edges, edges, edges)) 
