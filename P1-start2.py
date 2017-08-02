@@ -234,13 +234,20 @@ for ii in range(len(procImages)):
     mask = np.zeros_like(edges)   
     ignore_mask_color = 255   
 
-    # This time we are defining a four sided polygon to mask
+    # This time we are defining a four sided polygon to mask.
+    # TODO: Unfortunately I have y and x reversed nomenclature. Fix.
     imshape = image.shape
-    # vertices = np.array([[(10,imshape[0]),(0,0), (imshape[1], 0), (imshape[1],imshape[0])]], dtype=np.int32)
-    vertices = np.array([[(imshape[1]*0.05,imshape[0]),
-                          (imshape[1]*0.46,imshape[0]*0.60),
-                          (imshape[1]*0.53,imshape[0]*0.60), 
-                          (imshape[1],imshape[0])]], 
+    # vertices = np.array([[(10,imshape[0]),(0,0), (imshape[1], 0), (imshape[1],imshape[0])]], dtype=np.int32
+    xMax = imshape[0];       # bottom
+    xMin = imshape[0]*0.60  # top
+    yMin = imshape[1]*0.05
+    yMaxL = imshape[1]*0.46
+    yMaxR = imshape[1]*0.53
+    yMax  = imshape[1]
+    vertices = np.array([[(yMin,xMax),
+                          (yMaxL,xMin),
+                          (yMaxR,xMin), 
+                          (yMax,xMax)]], 
                         dtype=np.int32)
     cv2.fillPoly(mask, vertices, ignore_mask_color)
     masked_edges = cv2.bitwise_and(edges, mask)
@@ -301,20 +308,58 @@ for ii in range(len(procImages)):
 
     # Find the two slopes
     from sklearn.cluster import KMeans
+    from sklearn.linear_model import LinearRegression
     kmeans = KMeans(n_clusters=2).fit(goodSlopes)
 
     goodLineImage = np.copy(image)*0 # blank for right/left image
     iiGood = 0
+    xTrain0 = np.ndarray((1,0))
+    yTrain0 = np.ndarray((1,0))
+    xTrain1 = np.ndarray((1,0))
+    yTrain1 = np.ndarray((1,0))
     for line in goodLines:
         for x1,y1,x2,y2 in line:
             if kmeans.labels_[iiGood] == 0:
-                cv2.line(goodLineImage,(x1,y1),(x2,y2),(255,0,0),10)
+#                cv2.line(goodLineImage,(x1,y1),(x2,y2),(255,0,0),10)
+                xTrain0 = np.append(xTrain0, (x1, x2))
+                yTrain0 = np.append(yTrain0, (y1, y2))
             else:
-                cv2.line(goodLineImage,(x1,y1),(x2,y2),(0,255,0),10)
-            lines_image = cv2.addWeighted(image, 0.8, goodLineImage, 1, 0)
-            plt.imshow(lines_image)
+#                cv2.line(goodLineImage,(x1,y1),(x2,y2),(0,255,0),10)
+                xTrain1 = np.append(xTrain1, (x1, x2))
+                yTrain1 = np.append(yTrain1, (y1, y2))
             iiGood = iiGood + 1
-            plt.show()
+            
+            
+    line0 = LinearRegression()
+    line0.fit(xTrain0.reshape((xTrain0.size,1)), yTrain0.reshape((yTrain0.size,1)))
+    line1 = LinearRegression()
+    line1.fit(xTrain1.reshape((xTrain1.size,1)), yTrain1.reshape((yTrain1.size,1)))
+    
+    # Now I have to get right/left correct for the right model
+    if(np.mean(xTrain1) > np.mean(xTrain0)):
+        cv2.line(goodLineImage, 
+                 (np.int_(0), np.int_(line0.predict(0))), 
+                 (np.int_(yMaxL), np.int_(line0.predict(yMaxL))), 
+                 (255,0,0), 10)
+        cv2.line(goodLineImage, 
+                 (np.int_(yMaxR), np.int_(line1.predict(yMaxR))), 
+                 (np.int_(yMax), np.int_(line1.predict(yMax))), 
+                 (255,0,0), 10)
+    else:
+        cv2.line(goodLineImage, 
+                 (np.int_(0), np.int_(line1.predict(0))), 
+                 (np.int_(yMaxL), np.int_(line1.predict(yMaxL))), 
+                 (255,0,0), 10)
+        cv2.line(goodLineImage, 
+                 (np.int_(yMaxR), np.int_(line0.predict(yMaxR))), 
+                 (np.int_(yMax), np.int_(line0.predict(yMax))), 
+                 (255,0,0), 10)
+    lines_image = cv2.addWeighted(image, 0.8, goodLineImage, 1, 0)
+    plt.imshow(lines_image)
+    plt.show()
+    
+
+
             # input("press enter to continue")
 
     # Least Squares fit the two lines
