@@ -282,7 +282,7 @@ for ii in range(len(procImages)):
     il=0  # index of line
     for line in lines:
         for x1,y1,x2,y2 in line:
-            mySlopes[il] = ( (x2-x1)/(y2-y1) )
+            mySlopes[il] = ( (x2-x1)/((y2-y1)+np.finfo(np.float32).eps) )
         il = il + 1
     # Find the mean and std of slope
     alpha = 1.5 # tuning parameter - number of std.devs. away allows
@@ -357,19 +357,6 @@ for ii in range(len(procImages)):
     lines_image = cv2.addWeighted(image, 0.8, goodLineImage, 1, 0)
     plt.imshow(lines_image)
     plt.show()
-    
-
-
-            # input("press enter to continue")
-
-    # Least Squares fit the two lines
-    # pull the points based on class
-    
-    # interpolate them.
-    # use the function created to get from ymax(bottom) to ymin(top)
-    
-
-    
             
     # Create a "color" binary image to combine with line image
     color_edges = np.dstack((edges, edges, edges)) 
