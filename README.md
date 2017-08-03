@@ -65,13 +65,13 @@ This is the outline of the final processing pipeline:
 In order to draw a single line on the left and right lanes, I modified
 the draw_lines() function by
 
-5. Use the two sets of clustered lines to create linear interpolations
+1. Use the two sets of clustered lines to create linear interpolations
    around the sets of lines.
 
-6. Determine which line was right vs. left by looking at the mean of
+1. Determine which line was right vs. left by looking at the mean of
    the y-coordinate.
 
-6. Extrapolate both lines to the bottom of the image (although most
+1. Extrapolate both lines to the bottom of the image (although most
    likely, only the dashed line will need extrapolation), and to the
    y-coordinate at the top of the mask.
 
