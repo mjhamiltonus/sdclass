@@ -8,8 +8,14 @@
 **Finding Lane Lines on the Road**
 
 The goals / steps of this project are the following:
-* Make a pipeline that finds lane lines on the road
-* Reflect on your work in a written report
+
+* Make a pipeline that finds lane lines on the road: Pipeline is
+  reflected in the P1-mjh.ipynb file, which is the P1.ipynb file
+  extended with the generated code. Prototype code is in the
+  P1-movie2.py and P1-start2.py files.
+  
+* Reflect on your work in a written report: 
+  Written report is in this file.
 
 [//]: # (Image References)
 
