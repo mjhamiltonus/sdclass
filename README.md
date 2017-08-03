@@ -1,53 +1,102 @@
 # **Finding Lane Lines on the Road** 
-[![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
 
-<img src="examples/laneLines_thirdPass.jpg" width="480" alt="Combined Image" />
-
-Overview
+### Michael Hamilton
+### Term 1, SDCND
+### July, 2017
 ---
 
-When we drive, we use our eyes to decide where to go.  The lines on the road that show us where the lanes are act as our constant reference for where to steer the vehicle.  Naturally, one of the first things we would like to do in developing a self-driving car is to automatically detect lane lines using an algorithm.
+**Finding Lane Lines on the Road**
 
-In this project you will detect lane lines in images using Python and OpenCV.  OpenCV means "Open-Source Computer Vision", which is a package that has many useful tools for analyzing images.  
+The goals / steps of this project are the following:
+* Make a pipeline that finds lane lines on the road
+* Reflect on your work in a written report
 
-To complete the project, two files will be submitted: a file containing project code and a file containing a brief write up explaining your solution. We have included template files to be used both for the [code](https://github.com/udacity/CarND-LaneLines-P1/blob/master/P1.ipynb) and the [writeup](https://github.com/udacity/CarND-LaneLines-P1/blob/master/writeup_template.md).The code file is called P1.ipynb and the writeup template is writeup_template.md 
+[//]: # (Image References)
 
-To meet specifications in the project, take a look at the requirements in the [project rubric](https://review.udacity.com/#!/rubrics/322/view)
+[image1]: ./examples/grayscale.jpg "Grayscale"
 
-
-Creating a Great Writeup
----
-For this project, a great writeup should provide a detailed response to the "Reflection" section of the [project rubric](https://review.udacity.com/#!/rubrics/322/view). There are three parts to the reflection:
-
-1. Describe the pipeline
-
-2. Identify any shortcomings
-
-3. Suggest possible improvements
-
-We encourage using images in your writeup to demonstrate how your pipeline works.  
-
-All that said, please be concise!  We're not looking for you to write a book here: just a brief description.
-
-You're not required to use markdown for your writeup.  If you use another method please just submit a pdf of your writeup. Here is a link to a [writeup template file](https://github.com/udacity/CarND-LaneLines-P1/blob/master/writeup_template.md). 
-
-
-The Project
 ---
 
-## If you have already installed the [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) you should be good to go!   If not, you should install the starter kit to get started on this project. ##
+### Reflection
 
-**Step 1:** Set up the [CarND Term1 Starter Kit](https://classroom.udacity.com/nanodegrees/nd013/parts/fbf77062-5703-404e-b60c-95b78b2f3f9e/modules/83ec35ee-1e02-48a5-bdb7-d244bd47c2dc/lessons/8c82408b-a217-4d09-b81d-1bda4c6380ef/concepts/4f1870e0-3849-43e4-b670-12e6f2d4b7a7) if you haven't already.
+### 1. Describe your pipeline. As part of the description, explain how you modified the draw_lines() function.
 
-**Step 2:** Open the code in a Jupyter Notebook
+My pipeline started with that from the class. Extending the dashed
+lines together was the tricky part.
 
-You will complete the project code in a Jupyter notebook.  If you are unfamiliar with Jupyter Notebooks, check out <A HREF="https://www.packtpub.com/books/content/basics-jupyter-notebook-and-python" target="_blank">Cyrille Rossant's Basics of Jupyter Notebook and Python</A> to get started.
+I came across an idea on the internet of thresholding the slopes:
 
-Jupyter is an Ipython notebook where you can run blocks of code and see results interactively.  All the code for this project is contained in a Jupyter notebook. To start Jupyter in your browser, use terminal to navigate to your project directory and then run the following command at the terminal prompt (be sure you've activated your Python 3 carnd-term1 environment as described in the [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) installation instructions!):
+https://medium.com/@esmat.anis/robust-extrapolation-of-lines-in-video-using-linear-hough-transform-edd39d642ddf
 
-`> jupyter notebook`
+In an effort to make the technique more robust and adaptive, rather
+than manually setting more thresholds, I tried to use K-Means to cluster
+the slopes of the detected lines.
 
-A browser window will appear showing the contents of the current directory.  Click on the file called "P1.ipynb".  Another browser window will appear displaying the notebook.  Follow the instructions in the notebook to complete the project.  
+Using K-Means, Two clusters of slopes are found. This should
+correspond to the right line and the left line, since these are
+dominant signal in the images.
 
-**Step 3:** Complete the project and submit both the Ipython notebook and the project writeup
+It was anticipated that the larger group should be the dashed lines,
+and the longer lines should be the solid line (note: two solid lines
+are detected in many cases - the right and left side of the solid line
+where the gradients are present in the image, as pulled out by the
+Canny edge detection). This did not prove to be the case universally,
+and ultimately right and left were determined by positions of the
+y-coordinate (right/left) of the line.
+
+This is the outline of the final processing pipeline:
+
+1. Compute slopes and lengths of all lines
+
+2. Find the average and standard deviation of slopes
+
+3. Remove lines with slopes that are > X standard deviations away
+   (outlier rejection). This was based upon the assumption that most
+   of the lines should be stripes given the masking that has been
+   previously performed. X was initially set to 1.0, but, 1.5 was
+   found to be better.
+
+4. Perform K-Means with 2 clusters. This identifies the right and
+   left lines, and there are two dominant set of slopes.
+
+In order to draw a single line on the left and right lanes, I modified
+the draw_lines() function by
+
+5. Use the two sets of clustered lines to create linear interpolations
+   around the sets of lines.
+
+6. Determine which line was right vs. left by looking at the mean of
+   the y-coordinate.
+
+6. Extrapolate both lines to the bottom of the image (although most
+   likely, only the dashed line will need extrapolation), and to the
+   y-coordinate at the top of the mask.
+
+
+### 2. Identify potential shortcomings with your current pipeline
+
+The K-Means technique is based on the assumption that there are two
+sets of lines.  If there is another set of lines, or edges, down the
+middle of the lane for example, this technique will fail. The
+additional line will pull the set of points used for interpolation off
+of the lane.
+
+The approach clearly fails in the challenge case, where there are many
+horizontal lines inside of the mask.
+
+### 3. Suggest possible improvements to your pipeline
+
+This could be improved by using a simpler approach to detecting the
+lane lines based on where they are expected to be - such as gating by
+two specific sets of slopes. However, that technique would still
+suffer during lane changes, as the strips would not be where
+"expected" and would be missed.
+
+The website mentioned above also included maintaining history over the
+video. This makes great sense, but, for this project the technique was
+kept simple with single image processing only. Smoothing over frames
+would likely have solved the issues present in the baseline
+cases. Something different would be required in the challenge case.
+
+
 
