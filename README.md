@@ -32,9 +32,9 @@ In an effort to make the technique more robust and adaptive, rather
 than manually setting more thresholds, I tried to use K-Means to cluster
 the slopes of the detected lines.
 
-Using K-Means, Two clusters of slopes are found. This should
+Using K-Means, two clusters of slopes are found. This should
 correspond to the right line and the left line, since these are
-dominant signal in the images.
+dominant signals in the images.
 
 It was anticipated that the larger group should be the dashed lines,
 and the longer lines should be the solid line (note: two solid lines
@@ -45,6 +45,9 @@ and ultimately right and left were determined by positions of the
 y-coordinate (right/left) of the line.
 
 This is the outline of the final processing pipeline:
+
+1. Run the pipeline from the class of greyscaling, masking and canny
+   edge detection to generate a set of lines.
 
 1. Compute slopes and lengths of all lines
 
